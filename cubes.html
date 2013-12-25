@@ -30,7 +30,7 @@
 <body>
 
 <div class="info">
-    <a href="http://threejs.org" target="_blank">three.js</a> webgl - conway game of life 3d
+    <a href="http://threejs.org" target="_blank">three.js</a> webgl - conway's game of life 3d
 </div>
 
 <div id="container"></div>
@@ -52,7 +52,7 @@ init();
 
 var cubes = [];
 
-var gameOfLife = new GameOfLife([]);
+var gameOfLife = new GameOfLife([newCell(100, 100, 100)]);
 var showGame = function() {
     var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
 
@@ -91,7 +91,7 @@ var showGame = function() {
         scene.add(cube);
     });
 
-//    setTimeout(showGame, 1000);
+    setTimeout(showGame, 2000);
 };
 showGame();
 
