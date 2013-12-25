@@ -30,7 +30,7 @@
 <body>
 
 <div class="info">
-    <a href="http://threejs.org" target="_blank">three.js</a> webgl - gpu picking
+    <a href="http://threejs.org" target="_blank">three.js</a> webgl - conway game of life 3d
 </div>
 
 <div id="container"></div>
@@ -67,7 +67,7 @@ function init() {
 
     scene = new THREE.Scene();
 
-    scene.add(new THREE.AmbientLight(0x555555));
+    scene.add(new THREE.AmbientLight(0x999999));
 
     var light = new THREE.SpotLight(0xffffff, 1.5);
     light.position.set(0, 500, 2000);
@@ -75,39 +75,18 @@ function init() {
 
     var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
 
-    function applyVertexColors(geometry, cube) {
-        geometry.faces.forEach(function(f) {
-            var n = ( f instanceof THREE.Face3 ) ? 3 : 4;
-            for (var j = 0; j < n; j++) {
-                f.vertexColors[ j ] = cube;
-            }
-        });
-    }
-
-    for (var i = 0; i < 5000; i++) {
-        var position = new THREE.Vector3();
-        position.x = Math.random() * 10000 - 5000;
-        position.y = Math.random() * 6000 - 3000;
-        position.z = Math.random() * 8000 - 4000;
-
-//        var rotation = new THREE.Euler();
-//        rotation.x = Math.random() * 2 * Math.PI;
-//        rotation.y = Math.random() * 2 * Math.PI;
-//        rotation.z = Math.random() * 2 * Math.PI;
-
-        var scale = new THREE.Vector3();
-        scale.x = Math.random() * 200 + 100;
-        scale.y = Math.random() * 200 + 100;
-        scale.z = Math.random() * 200 + 100;
-
-        // give the geom's vertices a random color, to be displayed
-        var geom = new THREE.CubeGeometry(1, 1, 1);
+    for (var i = 0; i < 1000; i++) {
+        var position = new THREE.Vector3(
+                Math.random() * 10000 - 5000,
+                Math.random() * 6000 - 3000,
+                Math.random() * 8000 - 4000
+        );
+        var scale = new THREE.Vector3(200, 200, 200);
         var color = new THREE.Color(Math.random() * 0xffffff);
-        applyVertexColors(geom, color);
+        var geom = new THREE.CubeGeometry(1, 1, 1);
 
-        var cube = new THREE.Mesh(geom, defaultMaterial);
+        var cube = new THREE.Mesh(applyVertexColors(geom, color), defaultMaterial);
         cube.position.copy(position);
-//        cube.rotation.copy(rotation);
         cube.scale.copy(scale);
 
         scene.add(cube);
@@ -126,6 +105,16 @@ function init() {
     container.appendChild(stats.domElement);
 
     renderer.domElement.addEventListener('mousemove', onMouseMove);
+}
+
+function applyVertexColors(geometry, cube) {
+    geometry.faces.forEach(function(f) {
+        var n = ( f instanceof THREE.Face3 ) ? 3 : 4;
+        for (var j = 0; j < n; j++) {
+            f.vertexColors[ j ] = cube;
+        }
+    });
+    return geometry;
 }
 
 function onMouseMove(e) {
