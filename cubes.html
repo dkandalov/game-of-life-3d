@@ -38,6 +38,7 @@
 <script src="js/three.js"></script>
 <script src="js/TrackballControls.js"></script>
 <script src="js/stats.min.js"></script>
+<script src="game-of-life.js"></script>
 
 <script>
 
@@ -48,7 +49,54 @@ var mouse = new THREE.Vector2();
 var offset = new THREE.Vector3(10, 10, 10);
 
 init();
+
+var cubes = [];
+
+var gameOfLife = new GameOfLife([]);
+var showGame = function() {
+    var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
+
+    cubes.forEach(function(cube) {
+        scene.remove(cube);
+    });
+    cubes = [];
+
+    gameOfLife.nextGeneration();
+    gameOfLife.cells.forEach(function(cell) {
+        var x = cell[0];
+        var y = cell[1];
+        var z = cell[2];
+
+        var width = 10000;
+        var height = 6000;
+        var depth = 8000;
+        var cellWidth = width / gameOfLife.width;
+        var cellHeight = height / gameOfLife.height;
+        var cellDepth = depth / gameOfLife.depth;
+
+        var position = new THREE.Vector3(
+                x * cellWidth - width / 2,
+                y * cellHeight - height / 2,
+                z * cellDepth - depth / 2
+        );
+        var scale = new THREE.Vector3(200, 200, 200);
+        var color = new THREE.Color(Math.random() * 0xffffff);
+        var geom = new THREE.CubeGeometry(1, 1, 1);
+
+        var cube = new THREE.Mesh(applyVertexColors(geom, color), defaultMaterial);
+        cube.position.copy(position);
+        cube.scale.copy(scale);
+
+        cubes.push(cube);
+        scene.add(cube);
+    });
+
+//    setTimeout(showGame, 1000);
+};
+showGame();
+
 animate();
+
 
 function init() {
     var container = document.getElementById("container");
@@ -73,38 +121,17 @@ function init() {
     light.position.set(0, 500, 2000);
     scene.add(light);
 
-    var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
-
-    for (var i = 0; i < 1000; i++) {
-        var position = new THREE.Vector3(
-                Math.random() * 10000 - 5000,
-                Math.random() * 6000 - 3000,
-                Math.random() * 8000 - 4000
-        );
-        var scale = new THREE.Vector3(200, 200, 200);
-        var color = new THREE.Color(Math.random() * 0xffffff);
-        var geom = new THREE.CubeGeometry(1, 1, 1);
-
-        var cube = new THREE.Mesh(applyVertexColors(geom, color), defaultMaterial);
-        cube.position.copy(position);
-        cube.scale.copy(scale);
-
-        scene.add(cube);
-    }
-
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setClearColor(0xffffff, 1);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.sortObjects = false;
-
+    renderer.domElement.addEventListener('mousemove', onMouseMove);
     container.appendChild(renderer.domElement);
 
     stats = new Stats();
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.top = '0px';
     container.appendChild(stats.domElement);
-
-    renderer.domElement.addEventListener('mousemove', onMouseMove);
 }
 
 function applyVertexColors(geometry, cube) {
