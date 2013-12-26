@@ -91,12 +91,15 @@ function stringPatternToCells(startCell, pattern) {
 
 	pattern = pattern.replace(/[ \t]/g, "").trim();
 	var lines = pattern.split("\n");
-	for (var dy = 0; dy < lines.length; dy++) {
-		var line = lines[dy];
+	var height = lines.length;
+
+	for (var y = 0; y < height; y++) {
+		var line = lines[y];
 		for (var dx = 0; dx < line.length; dx++) {
 			var symbol = line[dx];
 			if (symbol == "x") {
-				result.push(newCell(startCell.x + dx, startCell.y - dy, startCell.z));
+				var dy = height - 1 - y;
+				result.push(newCell(startCell.x + dx, startCell.y + dy, startCell.z));
 			}
 		}
 	}

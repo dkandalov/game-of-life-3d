@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>three.js webgl - interactive cubes (gpu)</title>
+    <title>Conway's game of life 3d</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
@@ -51,13 +51,19 @@ var settings = {
     visualDepth: 10000,
     nextGenDelay: 2000000
 };
-var cells = stringPatternToCells(newCell(100, 100, 100), "\
+
+var cells = stringPatternToCells(newCell(100, 100, 0), "\
         --xxxx--\n\
-        -xxxxxx-\n\
-        -xxxxxx-\n\
+        -xxx----\n\
+        -xxx----\n\
         --xxxx--\n\
 ");
 cells = copyCellsInDepth(20, cells);
+for (var i = 0; i < settings.width; i++) {
+    cells.push(newCell(i, 0, 0));
+    cells.push(newCell(0, i, 0));
+    cells.push(newCell(0, 0, i));
+}
 var gameOfLife = new GameOfLife(cells, settings);
 
 
@@ -72,7 +78,12 @@ function updateStateOf(gameOfLife, scene, settings, objectsToClean) {
     }
     objectsToClean = [];
 
-    var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
+    var defaultMaterial = new THREE.MeshLambertMaterial({
+        color: 0xffffff,
+        shading: THREE.FlatShading,
+        vertexColors: THREE.VertexColors
+    });
+
     gameOfLife.cells.forEach(function(cell) {
         var cellWidth = settings.visualWidth / gameOfLife.width;
         var cellHeight = settings.visualHeight / gameOfLife.height;
@@ -113,8 +124,8 @@ function initOn(container) {
     }
 
     function createCamera(window) {
-        var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.z = 8000;
+        var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 14000);
+        camera.position.z = 5000;
         return camera;
     }
 

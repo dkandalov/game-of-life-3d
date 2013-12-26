@@ -50,9 +50,9 @@ describe("Conway's game of life utils: ", function () {
 		";
 		var someZ = 123;
 		expect(stringPatternToCells(newCell(0, 10, someZ), pattern)).toEqual([
-			newCell(0, 10, someZ),
-			newCell(0, 9, someZ), newCell(1, 9, someZ),
-			newCell(0, 8, someZ), newCell(1, 8, someZ), newCell(2, 8, someZ)
+			newCell(0, 12, someZ),
+			newCell(0, 11, someZ), newCell(1, 11, someZ),
+			newCell(0, 10, someZ), newCell(1, 10, someZ), newCell(2, 10, someZ)
 		]);
 	});
 });
