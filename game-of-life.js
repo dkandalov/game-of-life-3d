@@ -1,7 +1,7 @@
-function GameOfLife(cells) {
-	this.width = 300;
-	this.height = 300;
-	this.depth = 300;
+function GameOfLife(cells, settings) {
+	this.width = settings.width;
+	this.height = settings.height;
+	this.depth = settings.depth;
 	this.cells = this.clipToSize(cells);
 }
 

@@ -52,6 +52,11 @@ init();
 
 var cubes = [];
 
+var settings = {
+    width: 300,
+    height: 300,
+    depth: 300
+};
 var cells = stringPatternToCells(newCell(100, 100, 100), "\
         --xxxx--\n\
         -xxxxxx-\n\
@@ -60,7 +65,7 @@ var cells = stringPatternToCells(newCell(100, 100, 100), "\
 ");
 cells = copyCellsInDepth(50, cells);
 
-var gameOfLife = new GameOfLife(cells);
+var gameOfLife = new GameOfLife(cells, settings);
 var showGame = function() {
     var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
 
