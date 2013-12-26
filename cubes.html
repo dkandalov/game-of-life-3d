@@ -60,20 +60,20 @@ var cells = stringPatternToCells(newCell(100, 100, 0), "\
 ");
 cells = copyCellsInDepth(20, cells);
 for (var i = 0; i < settings.width; i += 5) {
-    cells.push(newCell(i, 0, 0));
-    cells.push(newCell(0, i, 0));
-    cells.push(newCell(0, 0, i));
-
-    cells.push(newCell(settings.width-1, 0, i));
-    cells.push(newCell(settings.width-1, i, 0));
-    cells.push(newCell(0, settings.height-1, i));
-    cells.push(newCell(i, settings.height-1, 0));
-    cells.push(newCell(0, i, settings.depth-1));
-    cells.push(newCell(i, 0, settings.depth-1));
-
-    cells.push(newCell(i, settings.height-1, settings.depth-1));
-    cells.push(newCell(settings.width-1, i, settings.depth-1));
-    cells.push(newCell(settings.width-1, settings.depth-1, i));
+//    cells.push(newCell(i, 0, 0));
+//    cells.push(newCell(0, i, 0));
+//    cells.push(newCell(0, 0, i));
+//
+//    cells.push(newCell(settings.width-1, 0, i));
+//    cells.push(newCell(settings.width-1, i, 0));
+//    cells.push(newCell(0, settings.height-1, i));
+//    cells.push(newCell(i, settings.height-1, 0));
+//    cells.push(newCell(0, i, settings.depth-1));
+//    cells.push(newCell(i, 0, settings.depth-1));
+//
+//    cells.push(newCell(i, settings.height-1, settings.depth-1));
+//    cells.push(newCell(settings.width-1, i, settings.depth-1));
+//    cells.push(newCell(settings.width-1, settings.depth-1, i));
 }
 var gameOfLife = new GameOfLife(cells, settings);
 
@@ -164,12 +164,22 @@ function initOn(container, settings) {
         return renderer;
     }
 
-    function createScene() {
+    function createScene(settings) {
         var scene = new THREE.Scene();
+
         scene.add(new THREE.AmbientLight(0x999999));
+
         var light = new THREE.SpotLight(0xffffff, 1.5);
         light.position.set(0, 500, 2000);
         scene.add(light);
+
+        var cube = new THREE.Mesh(
+                new THREE.CubeGeometry(settings.visualWidth, settings.visualHeight, settings.visualDepth),
+                new THREE.MeshBasicMaterial({ wireframe: true, color: 'black' })
+        );
+        cube.position = new THREE.Vector3(0, 0, 0);
+        scene.add(cube);
+
         return scene;
     }
 
@@ -180,7 +190,7 @@ function initOn(container, settings) {
         return stats;
     }
 
-    var scene = createScene();
+    var scene = createScene(settings);
     var camera = createCamera(window, settings);
     var controls = createControls(camera, settings);
     var renderer = createRenderer(window);
