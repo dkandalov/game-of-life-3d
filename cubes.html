@@ -42,20 +42,18 @@
 
 <script>
 
-var stats;
-var camera, controls, scene, renderer;
+var stats, camera, controls, scene, renderer;
 
-var mouse = new THREE.Vector2();
-var offset = new THREE.Vector3(10, 10, 10);
-
-init();
 
 var cubes = [];
-
 var settings = {
     width: 300,
     height: 300,
-    depth: 300
+    depth: 300,
+    visualWidth: 10000,
+    visualHeight: 10000,
+    visualDepth: 10000,
+    nextGenDelay: 2000000
 };
 var cells = stringPatternToCells(newCell(100, 100, 100), "\
         --xxxx--\n\
@@ -63,7 +61,7 @@ var cells = stringPatternToCells(newCell(100, 100, 100), "\
         -xxxxxx-\n\
         --xxxx--\n\
 ");
-cells = copyCellsInDepth(50, cells);
+cells = copyCellsInDepth(20, cells);
 
 var gameOfLife = new GameOfLife(cells, settings);
 var showGame = function() {
@@ -75,17 +73,14 @@ var showGame = function() {
     cubes = [];
 
     gameOfLife.cells.forEach(function(cell) {
-        var width = 10000;
-        var height = 6000;
-        var depth = 8000;
-        var cellWidth = width / gameOfLife.width;
-        var cellHeight = height / gameOfLife.height;
-        var cellDepth = depth / gameOfLife.depth;
+        var cellWidth = settings.visualWidth / gameOfLife.width;
+        var cellHeight = settings.visualHeight / gameOfLife.height;
+        var cellDepth = settings.visualDepth / gameOfLife.depth;
 
         var position = new THREE.Vector3(
-                cell.x * cellWidth - width / 2,
-                cell.y * cellHeight - height / 2,
-                cell.z * cellDepth - depth / 2
+                cell.x * cellWidth - settings.visualWidth / 2,
+                cell.y * cellHeight - settings.visualHeight / 2,
+                cell.z * cellDepth - settings.visualDepth / 2
         );
         var scale = new THREE.Vector3(cellWidth, cellHeight, cellDepth);
         var color = new THREE.Color(Math.random() * 0xffffff);
@@ -100,46 +95,64 @@ var showGame = function() {
     });
     gameOfLife.nextGeneration();
 
-    setTimeout(showGame, 2000);
+    setTimeout(showGame, settings.nextGenDelay);
 };
-showGame();
 
+initOn(document.getElementById("container"));
+showGame();
 animate();
 
 
-function init() {
-    var container = document.getElementById("container");
+function initOn(container) {
+    function createControls(camera) {
+        var controls = new THREE.TrackballControls(camera);
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        return controls;
+    }
 
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
-    camera.position.z = 8000;
+    function createCamera(window) {
+        var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.z = 8000;
+        return camera;
+    }
 
-    controls = new THREE.TrackballControls(camera);
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-    controls.noZoom = false;
-    controls.noPan = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
+    function createRenderer(window) {
+        var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+        renderer.setClearColor(0xffffff, 1);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.sortObjects = false;
+        return renderer;
+    }
 
-    scene = new THREE.Scene();
+    function createScene() {
+        var scene = new THREE.Scene();
+        scene.add(new THREE.AmbientLight(0x999999));
+        var light = new THREE.SpotLight(0xffffff, 1.5);
+        light.position.set(0, 500, 2000);
+        scene.add(light);
+        return scene;
+    }
 
-    scene.add(new THREE.AmbientLight(0x999999));
+    function createStats() {
+        var stats = new Stats();
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.top = '0px';
+        return stats;
+    }
 
-    var light = new THREE.SpotLight(0xffffff, 1.5);
-    light.position.set(0, 500, 2000);
-    scene.add(light);
+    camera = createCamera(window);
+    controls = createControls(camera);
+    scene = createScene();
+    renderer = createRenderer(window);
+    stats = createStats();
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setClearColor(0xffffff, 1);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.sortObjects = false;
-    renderer.domElement.addEventListener('mousemove', onMouseMove);
     container.appendChild(renderer.domElement);
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
     container.appendChild(stats.domElement);
 }
 
@@ -153,20 +166,11 @@ function applyVertexColors(geometry, cube) {
     return geometry;
 }
 
-function onMouseMove(e) {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-}
-
 function animate() {
     requestAnimationFrame(animate);
-    render();
-    stats.update();
-}
-
-function render() {
     controls.update();
     renderer.render(scene, camera);
+    stats.update();
 }
 
 </script>
