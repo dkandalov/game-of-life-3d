@@ -42,10 +42,6 @@
 
 <script>
 
-var stats, camera, controls, scene, renderer;
-
-
-var cubes = [];
 var settings = {
     width: 300,
     height: 300,
@@ -62,16 +58,21 @@ var cells = stringPatternToCells(newCell(100, 100, 100), "\
         --xxxx--\n\
 ");
 cells = copyCellsInDepth(20, cells);
-
 var gameOfLife = new GameOfLife(cells, settings);
-var showGame = function() {
+
+
+var animation = initOn(document.getElementById("container"));
+animation.animate();
+updateStateOf(gameOfLife, animation.scene, settings);
+
+
+function updateStateOf(gameOfLife, scene, settings, objectsToClean) {
+    if (objectsToClean != null) {
+        objectsToClean.forEach(function(cube) { scene.remove(cube); });
+    }
+    objectsToClean = [];
+
     var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
-
-    cubes.forEach(function(cube) {
-        scene.remove(cube);
-    });
-    cubes = [];
-
     gameOfLife.cells.forEach(function(cell) {
         var cellWidth = settings.visualWidth / gameOfLife.width;
         var cellHeight = settings.visualHeight / gameOfLife.height;
@@ -89,19 +90,14 @@ var showGame = function() {
         var cube = new THREE.Mesh(applyVertexColors(geom, color), defaultMaterial);
         cube.position.copy(position);
         cube.scale.copy(scale);
-
-        cubes.push(cube);
         scene.add(cube);
+
+        objectsToClean.push(cube);
     });
     gameOfLife.nextGeneration();
 
-    setTimeout(showGame, settings.nextGenDelay);
-};
-
-initOn(document.getElementById("container"));
-showGame();
-animate();
-
+    setTimeout(function() { updateStateOf(gameOfLife, scene, settings, objectsToClean); }, settings.nextGenDelay);
+}
 
 function initOn(container) {
     function createControls(camera) {
@@ -146,14 +142,22 @@ function initOn(container) {
         return stats;
     }
 
-    camera = createCamera(window);
-    controls = createControls(camera);
-    scene = createScene();
-    renderer = createRenderer(window);
-    stats = createStats();
+    var scene = createScene();
+    var camera = createCamera(window);
+    var controls = createControls(camera);
+    var renderer = createRenderer(window);
+    var stats = createStats();
 
     container.appendChild(renderer.domElement);
     container.appendChild(stats.domElement);
+
+    var animate = function() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+        stats.update();
+    };
+    return {animate: animate, scene: scene};
 }
 
 function applyVertexColors(geometry, cube) {
@@ -164,13 +168,6 @@ function applyVertexColors(geometry, cube) {
         }
     });
     return geometry;
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
 }
 
 </script>
