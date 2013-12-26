@@ -52,7 +52,15 @@ init();
 
 var cubes = [];
 
-var gameOfLife = new GameOfLife([newCell(100, 100, 100)]);
+var cells = stringPatternToCells(newCell(100, 100, 100), "\
+        --xxxx--\n\
+        -xxxxxx-\n\
+        -xxxxxx-\n\
+        --xxxx--\n\
+");
+cells = copyCellsInDepth(50, cells);
+
+var gameOfLife = new GameOfLife(cells);
 var showGame = function() {
     var defaultMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
 
@@ -61,12 +69,7 @@ var showGame = function() {
     });
     cubes = [];
 
-    gameOfLife.nextGeneration();
     gameOfLife.cells.forEach(function(cell) {
-        var x = cell[0];
-        var y = cell[1];
-        var z = cell[2];
-
         var width = 10000;
         var height = 6000;
         var depth = 8000;
@@ -75,11 +78,11 @@ var showGame = function() {
         var cellDepth = depth / gameOfLife.depth;
 
         var position = new THREE.Vector3(
-                x * cellWidth - width / 2,
-                y * cellHeight - height / 2,
-                z * cellDepth - depth / 2
+                cell.x * cellWidth - width / 2,
+                cell.y * cellHeight - height / 2,
+                cell.z * cellDepth - depth / 2
         );
-        var scale = new THREE.Vector3(200, 200, 200);
+        var scale = new THREE.Vector3(cellWidth, cellHeight, cellDepth);
         var color = new THREE.Color(Math.random() * 0xffffff);
         var geom = new THREE.CubeGeometry(1, 1, 1);
 
@@ -90,6 +93,7 @@ var showGame = function() {
         cubes.push(cube);
         scene.add(cube);
     });
+    gameOfLife.nextGeneration();
 
     setTimeout(showGame, 2000);
 };
@@ -151,7 +155,6 @@ function onMouseMove(e) {
 
 function animate() {
     requestAnimationFrame(animate);
-
     render();
     stats.update();
 }

@@ -85,3 +85,30 @@ function neighboursOf(cell) {
 	}
 	return result;
 }
+
+function stringPatternToCells(startCell, pattern) {
+	var result = [];
+
+	pattern = pattern.replace(/[ \t]/g, "").trim();
+	var lines = pattern.split("\n");
+	for (var dy = 0; dy < lines.length; dy++) {
+		var line = lines[dy];
+		for (var dx = 0; dx < line.length; dx++) {
+			var symbol = line[dx];
+			if (symbol == "x") {
+				result.push(newCell(startCell.x + dx, startCell.y - dy, startCell.z));
+			}
+		}
+	}
+	return result;
+}
+
+function copyCellsInDepth(depth, cells) {
+	var result = [];
+	for (var dz = 0; dz < depth; dz++) {
+		cells.forEach(function (cell) {
+			result.push(newCell(cell.x, cell.y, cell.z + dz));
+		});
+	}
+	return result;
+}

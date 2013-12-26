@@ -31,3 +31,20 @@ describe("In Conway's game of life: ", function () {
 		return result;
 	}
 });
+
+describe("Conway's game of life utils: ", function () {
+	it("should convert string pattern to cells", function() {
+		var pattern = "\
+			x--\n\
+			xx-\n\
+			xxx\n\
+		";
+		var someZ = 123;
+		expect(stringPatternToCells(newCell(0, 10, someZ), pattern)).toEqual([
+			newCell(0, 10, someZ),
+			newCell(0, 9, someZ), newCell(1, 9, someZ),
+			newCell(0, 8, someZ), newCell(1, 8, someZ), newCell(2, 8, someZ)
+		]);
+	});
+});
+
