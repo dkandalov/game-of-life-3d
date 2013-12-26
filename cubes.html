@@ -30,7 +30,7 @@
 <body>
 
 <div class="info">
-    <a href="http://threejs.org" target="_blank">three.js</a> webgl - conway's game of life 3d
+    <a href="http://threejs.org" target="_blank">three.js</a> webgl - Conway's game of life 3d
 </div>
 
 <div id="container"></div>
@@ -59,15 +59,26 @@ var cells = stringPatternToCells(newCell(100, 100, 0), "\
         --xxxx--\n\
 ");
 cells = copyCellsInDepth(20, cells);
-for (var i = 0; i < settings.width; i++) {
+for (var i = 0; i < settings.width; i += 5) {
     cells.push(newCell(i, 0, 0));
     cells.push(newCell(0, i, 0));
     cells.push(newCell(0, 0, i));
+
+    cells.push(newCell(settings.width-1, 0, i));
+    cells.push(newCell(settings.width-1, i, 0));
+    cells.push(newCell(0, settings.height-1, i));
+    cells.push(newCell(i, settings.height-1, 0));
+    cells.push(newCell(0, i, settings.depth-1));
+    cells.push(newCell(i, 0, settings.depth-1));
+
+    cells.push(newCell(i, settings.height-1, settings.depth-1));
+    cells.push(newCell(settings.width-1, i, settings.depth-1));
+    cells.push(newCell(settings.width-1, settings.depth-1, i));
 }
 var gameOfLife = new GameOfLife(cells, settings);
 
 
-var animation = initOn(document.getElementById("container"));
+var animation = initOn(document.getElementById("container"), settings);
 animation.animate();
 updateStateOf(gameOfLife, animation.scene, settings);
 
@@ -110,8 +121,8 @@ function updateStateOf(gameOfLife, scene, settings, objectsToClean) {
     setTimeout(function() { updateStateOf(gameOfLife, scene, settings, objectsToClean); }, settings.nextGenDelay);
 }
 
-function initOn(container) {
-    function createControls(camera) {
+function initOn(container, settings) {
+    function createControls(camera, settings) {
         var controls = new THREE.TrackballControls(camera);
         controls.rotateSpeed = 1.0;
         controls.zoomSpeed = 1.2;
@@ -120,12 +131,28 @@ function initOn(container) {
         controls.noPan = false;
         controls.staticMoving = true;
         controls.dynamicDampingFactor = 0.3;
+        controls.minDistance = settings.visualDepth * 0.3;
+        controls.maxDistance = settings.visualDepth * 2;
         return controls;
     }
 
-    function createCamera(window) {
-        var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 14000);
-        camera.position.z = 5000;
+    function createCamera(window, settings) {
+        var fov = 50; // empirical number
+        var camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, settings.visualDepth * 3);
+        camera.position.x = 0;
+        camera.position.y = 0;
+        camera.position.z = settings.visualDepth * 1.7;
+
+        window.onkeypress = function(event) {
+            var key = String.fromCharCode(event.keyCode);
+            if (key == "a") camera.position.x -= 500;
+            else if (key == "d") camera.position.x += 500;
+            else if (key == "w") camera.position.z -= 500;
+            else if (key == "s") camera.position.z += 500;
+            else if (key == "W") camera.position.y += 500;
+            else if (key == "S") camera.position.y -= 500;
+        };
+
         return camera;
     }
 
@@ -154,8 +181,8 @@ function initOn(container) {
     }
 
     var scene = createScene();
-    var camera = createCamera(window);
-    var controls = createControls(camera);
+    var camera = createCamera(window, settings);
+    var controls = createControls(camera, settings);
     var renderer = createRenderer(window);
     var stats = createStats();
 
