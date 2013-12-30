@@ -40,18 +40,40 @@
 <script src="js/stats.min.js"></script>
 <script src="game-of-life.js"></script>
 
+<script type="x-shader/x-vertex" id="vertexshader">
+    varying vec3 vColor;
+
+    void main() {
+        vColor = vec3(0, 0, 0);
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+
+        gl_PointSize = 200.0 * (300.0 / length(mvPosition.xyz));
+        gl_Position = projectionMatrix * mvPosition;
+    }
+</script>
+<script type="x-shader/x-fragment" id="fragmentshader">
+    uniform vec3 color;
+    uniform sampler2D texture;
+
+    varying vec3 vColor;
+
+    void main() {
+        gl_FragColor = vec4(color * vColor, 1.0);
+        gl_FragColor = gl_FragColor * texture2D(texture, gl_PointCoord);
+    }
+</script>
 <script>
 
 var settings = {
     width: 200,
     height: 200,
     depth: 200,
-    rules: [[2,5], [5]],
+    rules: [[2,3], [5]],
 
     visualWidth: 10000,
     visualHeight: 10000,
     visualDepth: 10000,
-    nextGenDelay: 500000000
+    nextGenDelay: 500
 };
 
 // period: 4; rules: 2,3/5
@@ -114,49 +136,68 @@ function gdcrLetters() {
 ---------xxx::::::xxx:::x--x::::::::::::xxx------------xxx::::::::::::x--x::::::x-----x:::::x--x::::::::::::::::::x-----xx:::::::::xx-----x::::::::::x--x:::::::::::::::xx--\n\
 ------------xxxxxx---xxxx--xxxxxxxxxxxxx------------------xxxxxxxxxxxxx--xxxxxxxx-----xxxxxxx--xxxxxxxxxxxxxxxxxxxx-------xxxxxxxxx-------xxxxxxxxxxxx---xxxxxxxxxxxxxxx----\n\
 ");
-    return copyCellsInDepth(3, cells);
+    return copyCellsInDepth(6, cells);
 }
 
-var cells = move(gdcrLetters(), 0, 0, 20);
+var cells = move(glider1(), 0, 100, 100);
+console.log(cells.length);
 var gameOfLife = new GameOfLife(cells, settings);
 
-
 var animation = initOn(document.getElementById("container"), settings);
-animation.animate();
+console.log("Initialised");
+
+var uniforms = {
+    color:      { type: "c", value: new THREE.Color(0xffffff) },
+    texture:    { type: "t", value: THREE.ImageUtils.loadTexture("./disc.png") }
+};
+
+uniforms.texture.value.wrapS = uniforms.texture.value.wrapT = THREE.RepeatWrapping;
+
+var material = new THREE.ShaderMaterial({
+    uniforms: {
+        color:      { type: "c", value: new THREE.Color(0xffffff) },
+        texture:    { type: "t", value: THREE.ImageUtils.loadTexture("./disc.png") }
+    },
+    attributes:     {},
+    vertexShader:   document.getElementById( 'vertexshader' ).textContent,
+    fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+    transparent:	true
+});
+
 updateStateOf(gameOfLife, animation.scene, settings);
+animation.animate();
 
 
 function updateStateOf(gameOfLife, scene, settings, objectsToClean) {
     if (objectsToClean != null) {
-        objectsToClean.forEach(function(cube) { scene.remove(cube); });
+        objectsToClean.forEach(function(it) { scene.remove(it); });
     }
     objectsToClean = [];
 
-    var material = new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        wireframe: true
-    });
     var cellWidth = settings.visualWidth / gameOfLife.width;
     var cellHeight = settings.visualHeight / gameOfLife.height;
     var cellDepth = settings.visualDepth / gameOfLife.depth;
 
+    var geometry = new THREE.Geometry();
     gameOfLife.cells.forEach(function(cell) {
-        var geometry = new THREE.CubeGeometry(1, 1, 1);
-
-        var cube = new THREE.Mesh(geometry, material);
-        cube.position.copy(new THREE.Vector3(
+        var vector = new THREE.Vector3(
                 cell.x * cellWidth - settings.visualWidth / 2,
                 cell.y * cellHeight - settings.visualHeight / 2,
                 cell.z * cellDepth - settings.visualDepth / 2
-        ));
-        cube.scale.copy(new THREE.Vector3(cellWidth, cellHeight, cellDepth));
-        scene.add(cube);
-
-        objectsToClean.push(cube);
+        );
+        geometry.vertices.push(vector);
+        objectsToClean.push(vector);
     });
+    var particleSystem = new THREE.ParticleSystem(geometry, material);
+    animation.scene.add(particleSystem);
+
+    objectsToClean = [particleSystem];
+
     gameOfLife.nextGeneration();
 
-    setTimeout(function() { updateStateOf(gameOfLife, scene, settings, objectsToClean); }, settings.nextGenDelay);
+    setTimeout(function() {
+        updateStateOf(gameOfLife, scene, settings, objectsToClean);
+    }, settings.nextGenDelay);
 }
 
 function initOn(container, settings) {
@@ -168,8 +209,8 @@ function initOn(container, settings) {
         controls.noZoom = false;
         controls.noPan = false;
         controls.staticMoving = true;
-        controls.dynamicDampingFactor = 0.3;
-        controls.minDistance = settings.visualDepth * 0.3;
+        controls.dynamicDampingFactor = 0.1;
+        controls.minDistance = settings.visualDepth * 0.1;
         controls.maxDistance = settings.visualDepth * 2;
         return controls;
     }
