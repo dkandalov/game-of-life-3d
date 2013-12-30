@@ -43,15 +43,15 @@
 <script>
 
 var settings = {
-    width: 300,
-    height: 300,
-    depth: 300,
+    width: 200,
+    height: 200,
+    depth: 200,
     rules: [[2,5], [5]],
 
     visualWidth: 10000,
     visualHeight: 10000,
     visualDepth: 10000,
-    nextGenDelay: 500
+    nextGenDelay: 500000000
 };
 
 // period: 4; rules: 2,3/5
@@ -117,7 +117,7 @@ function gdcrLetters() {
     return copyCellsInDepth(3, cells);
 }
 
-var cells = move(gdcrLetters(), 50, 50, 20);
+var cells = move(gdcrLetters(), 0, 0, 20);
 var gameOfLife = new GameOfLife(cells, settings);
 
 
@@ -132,29 +132,24 @@ function updateStateOf(gameOfLife, scene, settings, objectsToClean) {
     }
     objectsToClean = [];
 
-    var defaultMaterial = new THREE.MeshLambertMaterial({
-        color: 0xffffff,
-        shading: THREE.FlatShading,
-        vertexColors: THREE.VertexColors
+    var material = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        wireframe: true
     });
+    var cellWidth = settings.visualWidth / gameOfLife.width;
+    var cellHeight = settings.visualHeight / gameOfLife.height;
+    var cellDepth = settings.visualDepth / gameOfLife.depth;
 
     gameOfLife.cells.forEach(function(cell) {
-        var cellWidth = settings.visualWidth / gameOfLife.width;
-        var cellHeight = settings.visualHeight / gameOfLife.height;
-        var cellDepth = settings.visualDepth / gameOfLife.depth;
+        var geometry = new THREE.CubeGeometry(1, 1, 1);
 
-        var position = new THREE.Vector3(
+        var cube = new THREE.Mesh(geometry, material);
+        cube.position.copy(new THREE.Vector3(
                 cell.x * cellWidth - settings.visualWidth / 2,
                 cell.y * cellHeight - settings.visualHeight / 2,
                 cell.z * cellDepth - settings.visualDepth / 2
-        );
-        var scale = new THREE.Vector3(cellWidth, cellHeight, cellDepth);
-        var color = new THREE.Color(Math.random() * 0xffffff);
-        var geom = new THREE.CubeGeometry(1, 1, 1);
-
-        var cube = new THREE.Mesh(applyVertexColors(geom, color), defaultMaterial);
-        cube.position.copy(position);
-        cube.scale.copy(scale);
+        ));
+        cube.scale.copy(new THREE.Vector3(cellWidth, cellHeight, cellDepth));
         scene.add(cube);
 
         objectsToClean.push(cube);
