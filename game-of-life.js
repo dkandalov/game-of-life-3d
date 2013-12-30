@@ -39,9 +39,9 @@ GameOfLife.prototype.clipToSize = function(cells) {
 		if (cell.x < 0) cell.x = this.width + cell.x;
 		if (cell.y < 0) cell.y = this.height + cell.y;
 		if (cell.z < 0) cell.z = this.depth + cell.z;
-		if (cell.x >= this.width) cell.x = cell.x - this.width;
-		if (cell.y >= this.height) cell.y = cell.y - this.height;
-		if (cell.z >= this.depth) cell.z = cell.z - this.depth;
+		if (cell.x >= this.width) cell.x = cell.x % this.width;
+		if (cell.y >= this.height) cell.y = cell.y % this.height;
+		if (cell.z >= this.depth) cell.z = cell.z % this.depth;
 	}
 	return cells;
 };

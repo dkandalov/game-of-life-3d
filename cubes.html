@@ -46,12 +46,12 @@ var settings = {
     width: 300,
     height: 300,
     depth: 300,
-    rules: [[2,3], [5]],
+    rules: [[2,5], [5]],
 
     visualWidth: 10000,
     visualHeight: 10000,
     visualDepth: 10000,
-    nextGenDelay: 50
+    nextGenDelay: 500
 };
 
 // period: 4; rules: 2,3/5
@@ -70,34 +70,54 @@ function glider1() {
 ");
     return cells.concat(cells2);
 }
-var cells = move(glider1(), 100, 100, 20);
 
-
-//var cells = stringPatternToCells(newCell(100, 100, 0), "\
-//        --xxxx--\n\
-//        -xxx----\n\
-//        -xxx----\n\
-//        --xxxx--\n\
-//");
-//cells = copyCellsInDepth(20, cells);
-for (var i = 0; i < settings.width; i += 5) {
-//    cells.push(newCell(i, 0, 0));
-//    cells.push(newCell(0, i, 0));
-//    cells.push(newCell(0, 0, i));
-//
-//    cells.push(newCell(settings.width-1, 0, i));
-//    cells.push(newCell(settings.width-1, i, 0));
-//    cells.push(newCell(0, settings.height-1, i));
-//    cells.push(newCell(i, settings.height-1, 0));
-//    cells.push(newCell(0, i, settings.depth-1));
-//    cells.push(newCell(i, 0, settings.depth-1));
-//
-//    cells.push(newCell(i, settings.height-1, settings.depth-1));
-//    cells.push(newCell(settings.width-1, i, settings.depth-1));
-//    cells.push(newCell(settings.width-1, settings.depth-1, i));
+// period: 3, rules: 2,5/5
+function glider2() {
+    var cells = stringPatternToCells(newCell(0, 0, 0), "\
+        --\n\
+        --\n\
+        -x\n\
+        --\n\
+        -x\n\
+        --\n\
+        --\n\
+");
+    var cells2 = stringPatternToCells(newCell(0, 0, 1), "\
+        xx\n\
+        -x\n\
+        xx\n\
+        -x\n\
+        xx\n\
+        -x\n\
+        xx\n\
+");
+    return cells.concat(cells2);
 }
 
-console.log(cells);
+function gdcrLetters() {
+    // generated at http://patorjk.com/software/taag/#p=display&h=0&v=0&f=Small%20Slant&t=GDCR2013 (Font Name: Doh)
+    var cells = stringPatternToCells(newCell(0, 0, 0), "\
+------------xxxxxxxxxxxxx--xxxxxxxxxxxxx------------------xxxxxxxxxxxxx--xxxxxxxxxxxxxxxxx------xxxxxxxxxxxxxxx-----------xxxxxxxxx---------xxxxxxx------xxxxxxxxxxxxxxx----\n\
+---------xxx::::::::::::x--x::::::::::::xxx------------xxx::::::::::::x--x::::::::::::::::x----x:::::::::::::::xx-------xx:::::::::xx------x::::::x-----x:::::::::::::::xx--\n\
+-------xx:::::::::::::::x--x:::::::::::::::xx--------xx:::::::::::::::x--x::::::xxxxxx:::::x---x::::::xxxxxx:::::x----xx:::::::::::::xx---x:::::::x-----x::::::xxxxx::::::x-\n\
+------x:::::xxxxxxxx::::x--xxx:::::xxxxx:::::x------x:::::xxxxxxxx::::x--xx:::::x-----x:::::x--xxxxxxx-----x:::::x---x:::::::xxx:::::::x--xxx:::::x-----xxxxxxx-----x:::::x-\n\
+-----x:::::x-------xxxxxx----x:::::x----x:::::x----x:::::x-------xxxxxx----x::::x-----x:::::x--------------x:::::x---x::::::x---x::::::x-----x::::x-----------------x:::::x-\n\
+----x:::::x------------------x:::::x-----x:::::x--x:::::x------------------x::::x-----x:::::x--------------x:::::x---x:::::x-----x:::::x-----x::::x-----------------x:::::x-\n\
+----x:::::x------------------x:::::x-----x:::::x--x:::::x------------------x::::xxxxxx:::::x------------xxxx::::x----x:::::x-----x:::::x-----x::::x---------xxxxxxxx:::::x--\n\
+----x:::::x----xxxxxxxxxx----x:::::x-----x:::::x--x:::::x------------------x:::::::::::::xx--------xxxxx::::::xx-----x:::::x-xxx-x:::::x-----x::::x---------x:::::::::::x---\n\
+----x:::::x----x::::::::x----x:::::x-----x:::::x--x:::::x------------------x::::xxxxxx:::::x-----xx::::::::xxx-------x:::::x-xxx-x:::::x-----x::::x---------xxxxxxxx:::::x--\n\
+----x:::::x----xxxxx::::x----x:::::x-----x:::::x--x:::::x------------------x::::x-----x:::::x---x:::::xxxxx----------x:::::x-----x:::::x-----x::::x-----------------x:::::x-\n\
+----x:::::x--------x::::x----x:::::x-----x:::::x--x:::::x------------------x::::x-----x:::::x--x:::::x---------------x:::::x-----x:::::x-----x::::x-----------------x:::::x-\n\
+-----x:::::x-------x::::x----x:::::x----x:::::x----x:::::x-------xxxxxx----x::::x-----x:::::x--x:::::x---------------x::::::x---x::::::x-----x::::x-----------------x:::::x-\n\
+------x:::::xxxxxxxx::::x--xxx:::::xxxxx:::::x------x:::::xxxxxxxx::::x--xx:::::x-----x:::::x--x:::::x-------xxxxxx--x:::::::xxx:::::::x--xxx::::::xxx--xxxxxxx-----x:::::x-\n\
+-------xx:::::::::::::::x--x:::::::::::::::xx--------xx:::::::::::::::x--x::::::x-----x:::::x--x::::::xxxxxxx:::::x---xx:::::::::::::xx---x::::::::::x--x::::::xxxxx::::::x-\n\
+---------xxx::::::xxx:::x--x::::::::::::xxx------------xxx::::::::::::x--x::::::x-----x:::::x--x::::::::::::::::::x-----xx:::::::::xx-----x::::::::::x--x:::::::::::::::xx--\n\
+------------xxxxxx---xxxx--xxxxxxxxxxxxx------------------xxxxxxxxxxxxx--xxxxxxxx-----xxxxxxx--xxxxxxxxxxxxxxxxxxxx-------xxxxxxxxx-------xxxxxxxxxxxx---xxxxxxxxxxxxxxx----\n\
+");
+    return copyCellsInDepth(3, cells);
+}
+
+var cells = move(gdcrLetters(), 50, 50, 20);
 var gameOfLife = new GameOfLife(cells, settings);
 
 
