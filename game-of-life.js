@@ -3,24 +3,28 @@ function GameOfLife(cells, settings) {
 	this.height = settings.height;
 	this.depth = settings.depth;
 	this.cells = this.clipToSize(cells);
+
+	// rules in the format similar to this paper http://www.complex-systems.com/pdf/15-3-4.pdf
+	this.stayAliveRules = settings.rules[0];
+	this.becomeAliveRules = settings.rules[1];
 }
 
 GameOfLife.prototype.nextGeneration = function() {
 	var newCells = [];
 
-	var cells = this.cells;
-	var isAlive = function(cell) { return includes(cell, cells); };
+	var that = this;
+	var isAlive = function(cell) { return includes(cell, that.cells); };
 	var isDead = function(cell) { return !isAlive(cell); };
 
 	this.cells.forEach(function(cell) {
-		var liveNeighbours = findAll(neighboursOf(cell), isAlive);
-		if (liveNeighbours.length >= 8 && liveNeighbours.length <= 12)
+		var liveNeighbours = findAll(that.clipToSize(neighboursOf(cell)), isAlive);
+		if (that.stayAliveRules.indexOf(liveNeighbours.length) != -1)
 			newCells.push(cell);
 
-		var deadNeighbours = findAll(neighboursOf(cell), isDead);
+		var deadNeighbours = findAll(that.clipToSize(neighboursOf(cell)), isDead);
 		deadNeighbours.forEach(function(cell) {
-			var liveNeighbours = findAll(neighboursOf(cell), isAlive);
-			if (liveNeighbours.length == 10)
+			var liveNeighbours = findAll(that.clipToSize(neighboursOf(cell)), isAlive);
+			if (that.becomeAliveRules.indexOf(liveNeighbours.length) != -1)
 				newCells.push(cell);
 		});
 	});
@@ -37,7 +41,7 @@ GameOfLife.prototype.clipToSize = function(cells) {
 		if (cell.z < 0) cell.z = this.depth + cell.z;
 		if (cell.x >= this.width) cell.x = cell.x - this.width;
 		if (cell.y >= this.height) cell.y = cell.y - this.height;
-		if (cell.x >= this.depth) cell.z = cell.z - this.depth;
+		if (cell.z >= this.depth) cell.z = cell.z - this.depth;
 	}
 	return cells;
 };
@@ -104,6 +108,16 @@ function stringPatternToCells(startCell, pattern) {
 		}
 	}
 	return result;
+}
+
+function move(cells, dx, dy, dz) {
+	if (cells instanceof Array) {
+		return cells.map(function(cell) {
+			return newCell(cell.x + dx, cell.y + dy, cell.z + dz);
+		});
+	} else {
+		return newCell(cells.x + dx, cells.y + dy, cells.z + dz);
+	}
 }
 
 function copyCellsInDepth(depth, cells) {

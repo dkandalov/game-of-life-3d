@@ -1,5 +1,5 @@
 describe("In Conway's game of life: ", function () {
-	var cell = newCell(100, 100, 100);
+	var cell = newCell(0, 0, 0);
 
 	it("live cell with not enough neighbours dies", function () {
 		var cells = nextGenerationOf([cell]);
@@ -29,7 +29,8 @@ describe("In Conway's game of life: ", function () {
 		var settings = {
 			width: 300,
 			height: 300,
-			depth: 300
+			depth: 300,
+			rules: [[8, 9, 10, 11, 12], [10]]
 		};
 		return new GameOfLife(cells, settings).nextGeneration().cells;
 	}

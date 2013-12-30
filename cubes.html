@@ -46,19 +46,40 @@ var settings = {
     width: 300,
     height: 300,
     depth: 300,
+    rules: [[2,3], [5]],
+
     visualWidth: 10000,
     visualHeight: 10000,
     visualDepth: 10000,
-    nextGenDelay: 2000000
+    nextGenDelay: 50
 };
 
-var cells = stringPatternToCells(newCell(100, 100, 0), "\
-        --xxxx--\n\
-        -xxx----\n\
-        -xxx----\n\
-        --xxxx--\n\
+// period: 4; rules: 2,3/5
+function glider1() {
+    var cells = stringPatternToCells(newCell(0, 0, 0), "\
+        --xx--\n\
+        -x--x-\n\
+        -x--x-\n\
+        --xx--\n\
 ");
-cells = copyCellsInDepth(20, cells);
+    var cells2 = stringPatternToCells(newCell(0, 0, 1), "\
+        -x--x-\n\
+        ------\n\
+        ------\n\
+        -x--x-\n\
+");
+    return cells.concat(cells2);
+}
+var cells = move(glider1(), 100, 100, 20);
+
+
+//var cells = stringPatternToCells(newCell(100, 100, 0), "\
+//        --xxxx--\n\
+//        -xxx----\n\
+//        -xxx----\n\
+//        --xxxx--\n\
+//");
+//cells = copyCellsInDepth(20, cells);
 for (var i = 0; i < settings.width; i += 5) {
 //    cells.push(newCell(i, 0, 0));
 //    cells.push(newCell(0, i, 0));
@@ -75,6 +96,8 @@ for (var i = 0; i < settings.width; i += 5) {
 //    cells.push(newCell(settings.width-1, i, settings.depth-1));
 //    cells.push(newCell(settings.width-1, settings.depth-1, i));
 }
+
+console.log(cells);
 var gameOfLife = new GameOfLife(cells, settings);
 
 
